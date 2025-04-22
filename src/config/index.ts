@@ -6,7 +6,7 @@ dotenv.config();
 export const config = {
   port: process.env.PORT || 3000,
   nodeEnv: process.env.NODE_ENV || 'development',
-  
+
   database: {
     type: 'postgres' as const,
     host: process.env.DB_HOST || 'localhost',
@@ -19,17 +19,17 @@ export const config = {
     synchronize: process.env.NODE_ENV !== 'production',
     logging: process.env.NODE_ENV === 'development',
   },
-  
+
   jwt: {
     secret: process.env.JWT_SECRET || 'your_jwt_secret_key',
     expiresIn: process.env.JWT_EXPIRES_IN || '1d',
   },
-  
+
   telegram: {
     token: process.env.TELEGRAM_BOT_TOKEN || '',
     adminChatId: process.env.TELEGRAM_ADMIN_CHAT_ID || '',
   },
-  
+
   smtp: {
     host: process.env.SMTP_HOST || '',
     port: parseInt(process.env.SMTP_PORT || '587', 10),
@@ -38,7 +38,7 @@ export const config = {
     password: process.env.SMTP_PASSWORD || '',
     from: process.env.SMTP_FROM || '',
   },
-  
+
   admin: {
     email: process.env.ADMIN_EMAIL || 'admin@example.com',
   },

@@ -14,7 +14,9 @@ import { UserService } from './services/user.service';
 import { AuthService } from './services/auth.service';
 import { NotificationService } from './services/notification.service';
 import { EmailService } from './services/email.service';
-import { User, Product, Order, OrderItem, Notification } from './entities';
+import {
+  User, Product, Order, OrderItem, Notification,
+} from './entities';
 
 async function bootstrap() {
   const appDataSource = new DataSource({
@@ -28,62 +30,62 @@ async function bootstrap() {
     synchronize: config.database.synchronize,
     logging: config.database.logging,
   });
-  
+
   await appDataSource.initialize();
   console.log('База данных подключена');
-  
+
   const app = express();
-  
+
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  
+
   const userRepository = appDataSource.getRepository(User);
   const productRepository = appDataSource.getRepository(Product);
   const orderRepository = appDataSource.getRepository(Order);
   const orderItemRepository = appDataSource.getRepository(OrderItem);
   const notificationRepository = appDataSource.getRepository(Notification);
-  
+
   const userService = new UserService(userRepository);
   const productService = new ProductService(productRepository);
   const authService = new AuthService(userRepository);
   const emailService = new EmailService();
-  
+
   const orderService = new OrderService(
     orderRepository,
     orderItemRepository,
     productRepository,
-    userRepository
+    userRepository,
   );
-  
+
   const telegramBotService = new TelegramBotService(
     productService,
     orderService,
-    null
+    null,
   );
-  
+
   const notificationService = new NotificationService(
     notificationRepository,
     emailService,
-    telegramBotService
+    telegramBotService,
   );
-  
-  telegramBotService['notificationService'] = notificationService;
-  
+
+  telegramBotService.notificationService = notificationService;
+
   app.use('/api/auth', setupAuthRoutes(authService, userService));
   app.use('/api/products', setupProductRoutes(productService));
   app.use('/api/orders', setupOrderRoutes(orderService, notificationService));
-  
+
   app.use(errorMiddleware);
-  
+
   await userService.createAdminIfNotExists();
-  
+
   const PORT = config.port;
   app.listen(PORT, () => {
     console.log(`Сервер запущен на порту ${PORT}`);
   });
 }
 
-bootstrap().catch(error => {
+bootstrap().catch((error) => {
   console.error('Ошибка при запуске приложения:', error);
 });

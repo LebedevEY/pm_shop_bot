@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import {
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn,
+} from 'typeorm';
 
 export enum NotificationType {
   EMAIL = 'email',
@@ -13,26 +15,26 @@ export enum NotificationStatus {
 @Entity('notifications')
 export class Notification {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+    id: string;
 
   @Column({
     type: 'enum',
     enum: NotificationType,
   })
-  type: NotificationType;
+    type: NotificationType;
 
   @Column()
-  recipient: string;
+    recipient: string;
 
   @Column('text')
-  content: string;
+    content: string;
 
   @Column({
     type: 'enum',
     enum: NotificationStatus,
   })
-  status: NotificationStatus;
+    status: NotificationStatus;
 
   @CreateDateColumn()
-  createdAt: Date;
+    createdAt: Date;
 }

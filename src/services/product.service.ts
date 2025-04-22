@@ -8,11 +8,11 @@ export class ProductService {
 
   async findAll(options?: { isActive?: boolean }): Promise<Product[]> {
     const query = this.productRepository.createQueryBuilder('product');
-    
+
     if (options?.isActive !== undefined) {
       query.where('product.isActive = :isActive', { isActive: options.isActive });
     }
-    
+
     return query.orderBy('product.createdAt', 'DESC').getMany();
   }
 

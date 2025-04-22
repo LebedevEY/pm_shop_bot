@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import {
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 import { OrderItem } from './order-item.entity';
 
@@ -13,37 +15,37 @@ export enum OrderStatus {
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+    id: string;
 
-  @ManyToOne(() => User, user => user.orders)
+  @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn({ name: 'userId' })
-  user: User;
+    user: User;
 
   @Column()
-  userId: string;
+    userId: string;
 
   @Column({
     type: 'enum',
     enum: OrderStatus,
     default: OrderStatus.PENDING,
   })
-  status: OrderStatus;
+    status: OrderStatus;
 
   @Column('decimal', { precision: 10, scale: 2 })
-  totalAmount: number;
+    totalAmount: number;
 
   @Column('text')
-  shippingAddress: string;
+    shippingAddress: string;
 
   @Column()
-  contactPhone: string;
+    contactPhone: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+    createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+    updatedAt: Date;
 
-  @OneToMany(() => OrderItem, orderItem => orderItem.order, { cascade: true })
-  orderItems: OrderItem[];
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
+    orderItems: OrderItem[];
 }

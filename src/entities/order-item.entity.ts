@@ -1,32 +1,34 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn,
+} from 'typeorm';
 import { Order } from './order.entity';
 import { Product } from './product.entity';
 
 @Entity('order_items')
 export class OrderItem {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+    id: string;
 
-  @ManyToOne(() => Order, order => order.orderItems)
+  @ManyToOne(() => Order, (order) => order.orderItems)
   @JoinColumn({ name: 'orderId' })
-  order: Order;
+    order: Order;
 
   @Column()
-  orderId: string;
+    orderId: string;
 
-  @ManyToOne(() => Product, product => product.orderItems)
+  @ManyToOne(() => Product, (product) => product.orderItems)
   @JoinColumn({ name: 'productId' })
-  product: Product;
+    product: Product;
 
   @Column()
-  productId: string;
+    productId: string;
 
   @Column()
-  quantity: number;
+    quantity: number;
 
   @Column('decimal', { precision: 10, scale: 2 })
-  price: number;
+    price: number;
 
   @CreateDateColumn()
-  createdAt: Date;
+    createdAt: Date;
 }

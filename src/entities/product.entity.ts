@@ -1,35 +1,37 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany,
+} from 'typeorm';
 import { OrderItem } from './order-item.entity';
 
 @Entity('products')
 export class Product {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+    id: string;
 
   @Column()
-  name: string;
+    name: string;
 
   @Column('text')
-  description: string;
+    description: string;
 
   @Column('decimal', { precision: 10, scale: 2 })
-  price: number;
+    price: number;
 
   @Column({ nullable: true })
-  imageUrl: string;
+    imageUrl: string;
 
   @Column({ default: 0 })
-  stockQuantity: number;
+    stockQuantity: number;
 
   @Column({ default: true })
-  isActive: boolean;
+    isActive: boolean;
 
   @CreateDateColumn()
-  createdAt: Date;
+    createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+    updatedAt: Date;
 
-  @OneToMany(() => OrderItem, orderItem => orderItem.product)
-  orderItems: OrderItem[];
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
+    orderItems: OrderItem[];
 }

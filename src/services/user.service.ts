@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
-import { User, UserRole } from '../entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { User, UserRole } from '../entities/user.entity';
 
 export class UserService {
   constructor(
@@ -31,7 +31,7 @@ export class UserService {
     if (userData.password) {
       userData.password = await bcrypt.hash(userData.password, 10);
     }
-    
+
     const user = this.userRepository.create(userData);
     return this.userRepository.save(user);
   }
@@ -40,7 +40,7 @@ export class UserService {
     if (userData.password) {
       userData.password = await bcrypt.hash(userData.password, 10);
     }
-    
+
     await this.userRepository.update(id, userData);
     return this.findById(id);
   }
@@ -52,7 +52,7 @@ export class UserService {
 
   async createAdminIfNotExists(): Promise<void> {
     const adminExists = await this.userRepository.findOne({
-      where: { role: UserRole.ADMIN }
+      where: { role: UserRole.ADMIN },
     });
 
     if (!adminExists) {
@@ -60,7 +60,7 @@ export class UserService {
         username: 'admin',
         email: process.env.ADMIN_EMAIL || 'admin@example.com',
         password: process.env.ADMIN_PASSWORD || 'admin123',
-        role: UserRole.ADMIN
+        role: UserRole.ADMIN,
       });
     }
   }

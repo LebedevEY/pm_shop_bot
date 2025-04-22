@@ -34,15 +34,15 @@ export class OrderService {
       .leftJoinAndSelect('order.orderItems', 'orderItems')
       .leftJoinAndSelect('orderItems.product', 'product')
       .leftJoinAndSelect('order.user', 'user');
-    
+
     if (filters?.status) {
       query.andWhere('order.status = :status', { status: filters.status });
     }
-    
+
     if (filters?.userId) {
       query.andWhere('order.userId = :userId', { userId: filters.userId });
     }
-    
+
     return query.orderBy('order.createdAt', 'DESC').getMany();
   }
 
@@ -55,9 +55,9 @@ export class OrderService {
 
   async create(orderData: CreateOrderDto): Promise<Order> {
     const products = await Promise.all(
-      orderData.items.map(item => this.productRepository.findOne({ where: { id: item.productId } }))
+      orderData.items.map((item) => this.productRepository.findOne({ where: { id: item.productId } })),
     );
-    
+
     const totalAmount = orderData.items.reduce((sum, item, index) => {
       const product = products[index];
       if (!product) throw new Error(`Товар с ID ${item.productId} не найден`);
@@ -66,7 +66,7 @@ export class OrderService {
       }
       return sum + (product.price * item.quantity);
     }, 0);
-    
+
     const order = this.orderRepository.create({
       userId: orderData.userId,
       status: OrderStatus.PENDING,
@@ -74,13 +74,13 @@ export class OrderService {
       shippingAddress: orderData.shippingAddress,
       contactPhone: orderData.contactPhone,
     });
-    
+
     const savedOrder = await this.orderRepository.save(order);
-    
+
     const orderItems = orderData.items.map((item, index) => {
       const product = products[index];
       if (!product) throw new Error(`Товар с ID ${item.productId} не найден`);
-      
+
       return this.orderItemRepository.create({
         orderId: savedOrder.id,
         productId: item.productId,
@@ -88,23 +88,23 @@ export class OrderService {
         price: product.price,
       });
     });
-    
+
     await this.orderItemRepository.save(orderItems);
-    
+
     await Promise.all(orderData.items.map(async (item, index) => {
       const product = products[index];
       if (!product) return;
-      
+
       product.stockQuantity -= item.quantity;
       await this.productRepository.save(product);
     }));
-    
+
     return this.findById(savedOrder.id) as Promise<Order>;
   }
 
   async createOrderFromTelegram(orderData: CreateOrderFromTelegramDto): Promise<Order> {
     let user = await this.userRepository.findOne({ where: { telegramId: orderData.telegramUserId } });
-    
+
     if (!user) {
       user = await this.userRepository.save({
         username: `tg_user_${orderData.telegramUserId}`,
@@ -113,21 +113,21 @@ export class OrderService {
         telegramId: orderData.telegramUserId,
       });
     }
-    
+
     const product = await this.productRepository.findOne({ where: { id: orderData.productId } });
-    
+
     if (!product) {
       throw new Error(`Товар с ID ${orderData.productId} не найден`);
     }
-    
+
     if (product.stockQuantity < orderData.quantity) {
       throw new Error(`Недостаточно товара ${product.name} на складе`);
     }
-    
+
     const contactInfo = this.parseContactInfo(orderData.contactInfo);
-    
+
     const totalAmount = product.price * orderData.quantity;
-    
+
     const order = this.orderRepository.create({
       userId: user.id,
       status: OrderStatus.PENDING,
@@ -135,21 +135,21 @@ export class OrderService {
       shippingAddress: contactInfo.address,
       contactPhone: contactInfo.phone,
     });
-    
+
     const savedOrder = await this.orderRepository.save(order);
-    
+
     const orderItem = this.orderItemRepository.create({
       orderId: savedOrder.id,
       productId: orderData.productId,
       quantity: orderData.quantity,
       price: product.price,
     });
-    
+
     await this.orderItemRepository.save(orderItem);
-    
+
     product.stockQuantity -= orderData.quantity;
     await this.productRepository.save(product);
-    
+
     return this.findById(savedOrder.id) as Promise<Order>;
   }
 
@@ -162,7 +162,7 @@ export class OrderService {
     const nameMatch = contactInfo.match(/Имя:\s*(.+)/i);
     const addressMatch = contactInfo.match(/Адрес:\s*(.+)/i);
     const phoneMatch = contactInfo.match(/Телефон:\s*(.+)/i);
-    
+
     return {
       name: nameMatch ? nameMatch[1].trim() : '',
       address: addressMatch ? addressMatch[1].trim() : '',

@@ -13,21 +13,21 @@ export class NotificationService {
 
   async notifyAdminAboutNewOrder(order: Order): Promise<void> {
     const adminEmail = config.admin.email;
-    
+
     let message = `*Новый заказ #${order.id}*\n\n`;
     message += `Дата: ${order.createdAt.toLocaleString()}\n`;
     message += `Сумма: ${order.totalAmount} руб.\n\n`;
-    message += `Товары:\n`;
-    
+    message += 'Товары:\n';
+
     for (const item of order.orderItems) {
       message += `- ${item.product.name} x${item.quantity} = ${item.price * item.quantity} руб.\n`;
     }
-    
+
     message += `\nКонтактная информация:\nАдрес: ${order.shippingAddress}\nТелефон: ${order.contactPhone}`;
-    
+
     try {
       await this.telegramBotService.notifyAdmin(message);
-      
+
       await this.notificationRepository.save({
         type: NotificationType.TELEGRAM,
         recipient: 'admin',
@@ -42,10 +42,10 @@ export class NotificationService {
         status: NotificationStatus.FAILED,
       });
     }
-    
+
     try {
       await this.emailService.sendOrderNotification(adminEmail, order);
-      
+
       await this.notificationRepository.save({
         type: NotificationType.EMAIL,
         recipient: adminEmail,
