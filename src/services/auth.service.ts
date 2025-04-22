@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { User } from '../entities/user.entity';
 import { config } from '../config';
 
@@ -25,7 +25,7 @@ export class AuthService {
     const { password, ...result } = user;
 
     return {
-      accessToken: jwt.sign(payload, config.jwt.secret, { expiresIn: config.jwt.expiresIn }),
+      accessToken: jwt.sign(payload, config.jwt.secret, { expiresIn: config.jwt.expiresIn } as jwt.SignOptions),
       user: result,
     };
   }

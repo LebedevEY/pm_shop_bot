@@ -26,12 +26,31 @@ export class ProductService {
   }
 
   async update(id: string, productData: Partial<Product>): Promise<Product | null> {
-    await this.productRepository.update(id, productData);
-    return this.findById(id);
+    console.log('Обновление товара в сервисе:', id);
+    console.log('Данные для обновления:', productData);
+    
+    // Проверяем, есть ли в данных поле isActive
+    if ('isActive' in productData) {
+      console.log('Обнаружено поле isActive:', productData.isActive, typeof productData.isActive);
+      
+      // Убедимся, что isActive имеет тип boolean
+      if (typeof productData.isActive === 'string') {
+        productData.isActive = productData.isActive === 'true';
+        console.log('Преобразовано в boolean:', productData.isActive);
+      }
+    }
+    
+    const result = await this.productRepository.update(id, productData);
+    console.log('Результат обновления:', result);
+    
+    const updatedProduct = await this.findById(id);
+    console.log('Обновленный товар:', updatedProduct);
+    
+    return updatedProduct;
   }
 
   async delete(id: string): Promise<boolean> {
     const result = await this.productRepository.delete(id);
-    return result.affected > 0;
+    return result.affected !== null && result.affected !== undefined && result.affected > 0;
   }
 }

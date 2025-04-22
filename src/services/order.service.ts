@@ -19,6 +19,13 @@ interface CreateOrderFromTelegramDto {
   quantity: number;
   contactInfo: string;
   telegramUserId: string;
+  username: string;
+}
+
+interface CreateOrderFromCartDto {
+  telegramUserId: string;
+  username: string;
+  address: string;
 }
 
 export class OrderService {
@@ -129,7 +136,7 @@ export class OrderService {
     const totalAmount = product.price * orderData.quantity;
 
     const order = this.orderRepository.create({
-      userId: user.id,
+      userId: orderData.username, // Используем имя пользователя вместо Telegram ID
       status: OrderStatus.PENDING,
       totalAmount,
       shippingAddress: contactInfo.address,
@@ -168,5 +175,90 @@ export class OrderService {
       address: addressMatch ? addressMatch[1].trim() : '',
       phone: phoneMatch ? phoneMatch[1].trim() : '',
     };
+  }
+  
+  async createOrderFromCart(orderData: CreateOrderFromCartDto): Promise<Order> {
+    console.log(`Создание заказа из корзины для пользователя Telegram ID: ${orderData.telegramUserId}`);
+    
+    let user = await this.userRepository.findOne({ where: { telegramId: orderData.telegramUserId } });
+
+    if (!user) {
+      user = await this.userRepository.save({
+        username: `tg_user_${orderData.telegramUserId}`,
+        email: `tg_${orderData.telegramUserId}@example.com`,
+        password: Math.random().toString(36).slice(-8),
+        telegramId: orderData.telegramUserId,
+      });
+      console.log(`Создан новый пользователь для Telegram ID: ${orderData.telegramUserId}`);
+    }
+    
+    // Получаем репозитории для работы с корзиной
+    const cartRepository = this.orderRepository.manager.getRepository('Cart');
+    
+    // Получаем корзину пользователя
+    const cart = await cartRepository.findOne({
+      where: { telegramUserId: orderData.telegramUserId, isCompleted: false },
+      relations: ['items', 'items.product'],
+    });
+    
+    if (!cart || !cart.items || cart.items.length === 0) {
+      throw new Error('Корзина пуста или не найдена');
+    }
+    
+    // Рассчитываем общую сумму заказа
+    let totalAmount = 0;
+    for (const item of cart.items) {
+      totalAmount += Number(item.price) * item.quantity;
+    }
+    
+    // Создаем заказ
+    const order = this.orderRepository.create({
+      userId: orderData.username, // Используем имя пользователя вместо Telegram ID
+      status: OrderStatus.PENDING,
+      totalAmount,
+      shippingAddress: orderData.address,
+      contactPhone: 'Не указан'
+    });
+    
+    const savedOrder = await this.orderRepository.save(order);
+    console.log(`Создан заказ №${savedOrder.id} для пользователя Telegram ID: ${orderData.telegramUserId}`);
+    
+    // Добавляем товары в заказ
+    for (const item of cart.items) {
+      const product = await this.productRepository.findOne({ where: { id: item.productId } });
+      
+      if (!product) {
+        console.error(`Товар с ID ${item.productId} не найден`);
+        continue;
+      }
+      
+      if (product.stockQuantity < item.quantity) {
+        console.error(`Недостаточно товара ${product.name} на складе`);
+        continue;
+      }
+      
+      // Создаем элемент заказа
+      const orderItem = this.orderItemRepository.create({
+        orderId: savedOrder.id,
+        productId: item.productId,
+        quantity: item.quantity,
+        price: Number(item.price)
+      });
+      
+      await this.orderItemRepository.save(orderItem);
+      console.log(`Добавлен товар ${product.name} (${item.quantity} шт.) в заказ №${savedOrder.id}`);
+      
+      // Уменьшаем количество товара на складе
+      product.stockQuantity -= item.quantity;
+      await this.productRepository.save(product);
+    }
+    
+    // Возвращаем заказ с полной информацией
+    const createdOrder = await this.findById(savedOrder.id);
+    if (!createdOrder) {
+      throw new Error(`Не удалось найти созданный заказ №${savedOrder.id}`);
+    }
+    
+    return createdOrder;
   }
 }

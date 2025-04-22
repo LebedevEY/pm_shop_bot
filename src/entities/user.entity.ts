@@ -29,8 +29,11 @@ export class User {
   })
     role: UserRole;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, unique: true })
     telegramId: string;
+    
+  @Column({ default: false })
+    isBlocked: boolean;
 
   @CreateDateColumn()
     createdAt: Date;

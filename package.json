@@ -4,10 +4,18 @@
   "description": "Система управления интернет-продажами с админкой и телеграм-ботом",
   "main": "dist/app.js",
   "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "client"
+  ],
   "scripts": {
     "start": "node dist/app.js",
-    "dev": "nodemon --exec ts-node src/app.ts",
+    "dev:client": "lerna run dev --scope=client",
+    "dev:server": "nodemon --exec ts-node src/app.ts",
+    "dev": "concurrently \"yarn dev:server\" \"yarn dev:client\"",
     "build": "tsc",
+    "build:client": "lerna run build --scope=client",
+    "build:all": "concurrently \"yarn build\" \"yarn build:client\"",
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "yarn typeorm migration:generate -n",
     "migration:run": "yarn typeorm migration:run",
@@ -15,6 +23,7 @@
     "lint:fix": "eslint . --ext .ts --fix"
   },
   "dependencies": {
+    "@types/multer": "^1.4.12",
     "bcrypt": "^5.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
@@ -22,6 +31,7 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
+    "multer": "^1.4.5-lts.2",
     "node-telegram-bot-api": "^0.61.0",
     "nodemailer": "^6.9.1",
     "pg": "^8.10.0",
@@ -39,10 +49,12 @@
     "@types/nodemailer": "^6.4.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "concurrently": "^9.1.2",
     "eslint": "^8.56.0",
     "eslint-config-airbnb-base": "15.0.0",
     "eslint-config-airbnb-typescript": "17.1.0",
     "eslint-plugin-import": "^2.28.0",
+    "lerna": "^8.2.2",
     "nodemon": "^2.0.22",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"

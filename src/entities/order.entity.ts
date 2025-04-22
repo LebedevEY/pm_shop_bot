@@ -18,10 +18,10 @@ export class Order {
     id: string;
 
   @ManyToOne(() => User, (user) => user.orders)
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'userId', referencedColumnName: 'telegramId' })
     user: User;
 
-  @Column()
+  @Column({ type: 'varchar' })
     userId: string;
 
   @Column({

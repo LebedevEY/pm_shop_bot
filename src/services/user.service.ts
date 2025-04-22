@@ -36,7 +36,16 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  async update(id: string, userData: Partial<User>): Promise<User | null> {
+  async update(userData: User): Promise<User | null> {
+    if (userData.password) {
+      userData.password = await bcrypt.hash(userData.password, 10);
+    }
+
+    await this.userRepository.save(userData);
+    return this.findById(userData.id);
+  }
+
+  async updateById(id: string, userData: Partial<User>): Promise<User | null> {
     if (userData.password) {
       userData.password = await bcrypt.hash(userData.password, 10);
     }
@@ -47,7 +56,7 @@ export class UserService {
 
   async delete(id: string): Promise<boolean> {
     const result = await this.userRepository.delete(id);
-    return result.affected > 0;
+    return result.affected !== null && result.affected !== undefined && result.affected > 0;
   }
 
   async createAdminIfNotExists(): Promise<void> {
