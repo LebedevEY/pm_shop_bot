@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserRole } from '../entities/user.entity';
+import { UserRole } from '../entities';
 
 export const rolesMiddleware = (roles: UserRole[]) => (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {

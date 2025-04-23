@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { User } from '../entities/user.entity';
+import { User } from '../entities';
 import { config } from '../config';
 
 export class AuthService {
@@ -22,7 +22,7 @@ export class AuthService {
   async login(user: User): Promise<{ accessToken: string; user: Partial<User> }> {
     const payload = { username: user.username, sub: user.id, role: user.role };
 
-    const { password, ...result } = user;
+    const { ...result } = user;
 
     return {
       accessToken: jwt.sign(payload, config.jwt.secret, { expiresIn: config.jwt.expiresIn } as jwt.SignOptions),

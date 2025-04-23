@@ -31,7 +31,7 @@ export class User {
 
   @Column({ nullable: true, unique: true })
     telegramId: string;
-    
+
   @Column({ default: false })
     isBlocked: boolean;
 

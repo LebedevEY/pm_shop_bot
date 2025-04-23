@@ -1,32 +1,31 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import {
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 
-// Используем тип вместо прямого импорта для избежания циклической зависимости
-// Этот тип будет использоваться только для типизации, а не для импорта реального класса
 type CartItem = any;
 
 @Entity('carts')
 export class Cart {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+    id: string;
 
-  @ManyToOne(() => User, { nullable: true })
+  @ManyToOne(() => User, { nullable: true, createForeignKeyConstraints: false })
   @JoinColumn({ name: 'userId', referencedColumnName: 'telegramId' })
-  user: User;
+    user: User;
 
   @Column({ nullable: false })
-  userId: string;
+    userId: string;
 
   @Column({ default: false })
-  isCompleted: boolean;
+    isCompleted: boolean;
 
-  // Используем строковый идентификатор вместо прямого импорта для избежания циклической зависимости
   @OneToMany('CartItem', 'cart', { cascade: true })
-  items: CartItem[]; 
+    items: CartItem[];
 
   @CreateDateColumn()
-  createdAt: Date;
+    createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+    updatedAt: Date;
 }

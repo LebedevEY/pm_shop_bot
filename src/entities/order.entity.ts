@@ -17,6 +17,9 @@ export class Order {
   @PrimaryGeneratedColumn('uuid')
     id: string;
 
+  @Column({ type: 'varchar', length: 8, unique: true, nullable: true })
+    orderNumber: string | null;
+
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn({ name: 'userId', referencedColumnName: 'telegramId' })
     user: User;

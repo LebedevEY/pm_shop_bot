@@ -39,13 +39,14 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  orderNumber: string;
   userId: string;
   user: User;
   status: OrderStatus;
-  items: OrderItem[];
+  orderItems: OrderItem[];
   totalAmount: number;
-  contactInfo: string;
   shippingAddress: string;
+  contactPhone: string;
   createdAt: string;
   updatedAt: string;
 }

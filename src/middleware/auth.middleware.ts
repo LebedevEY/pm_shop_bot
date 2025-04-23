@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { config } from '../config';
 
@@ -24,8 +24,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
       return res.status(401).json({ message: 'Некорректный формат токена' });
     }
 
-    const decoded = jwt.verify(token, config.jwt.secret);
-    req.user = decoded;
+    req.user = jwt.verify(token, config.jwt.secret);
 
     next();
   } catch (error) {

@@ -1,6 +1,7 @@
 import { Repository } from 'typeorm';
-import { Notification, NotificationStatus, NotificationType } from '../entities/notification.entity';
-import { Order } from '../entities/order.entity';
+import {
+  Notification, NotificationStatus, NotificationType, Order,
+} from '../entities';
 import { EmailService } from './email.service';
 import { config } from '../config';
 

@@ -21,7 +21,7 @@ const Orders = () => {
     status?: OrderStatus;
     startDate?: string;
     endDate?: string;
-    contactInfo?: string;
+    shippingAddress?: string;
   }>({});
   const [form] = Form.useForm();
 
@@ -53,8 +53,8 @@ const Orders = () => {
       newFilters.endDate = values.dateRange[1].format('YYYY-MM-DD');
     }
 
-    if (values.contactInfo) {
-      newFilters.contactInfo = values.contactInfo;
+    if (values.shippingAddress) {
+      newFilters.shippingAddress = values.shippingAddress;
     }
 
     setFilters(newFilters);
@@ -102,6 +102,12 @@ const Orders = () => {
 
   const columns = [
     {
+      title: 'Номер заказа',
+      dataIndex: 'orderNumber',
+      key: 'orderNumber',
+      width: 120,
+    },
+    {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
@@ -120,9 +126,9 @@ const Orders = () => {
       key: 'username',
     },
     {
-      title: 'Контактная информация',
-      dataIndex: 'contactInfo',
-      key: 'contactInfo',
+      title: 'Адрес доставки',
+      dataIndex: 'shippingAddress',
+      key: 'shippingAddress',
     },
     {
       title: 'Сумма',
@@ -209,19 +215,20 @@ const Orders = () => {
       <Drawer
         title="Детали заказа"
         placement="right"
-        width={600}
+        width={800}
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
       >
         {selectedOrder && (
           <div>
             <Descriptions bordered column={1} size="small">
+              <Descriptions.Item label="Номер заказа">{selectedOrder.orderNumber}</Descriptions.Item>
               <Descriptions.Item label="ID заказа">{selectedOrder.id}</Descriptions.Item>
               <Descriptions.Item label="Дата создания">
                 {dayjs(selectedOrder.createdAt).format('DD.MM.YYYY HH:mm')}
               </Descriptions.Item>
               <Descriptions.Item label="Пользователь">{selectedOrder.user.username}</Descriptions.Item>
-              <Descriptions.Item label="Контактная информация">{selectedOrder.contactInfo}</Descriptions.Item>
+              <Descriptions.Item label="Телефон">{selectedOrder.contactPhone}</Descriptions.Item>
               <Descriptions.Item label="Адрес доставки">{selectedOrder.shippingAddress}</Descriptions.Item>
               <Descriptions.Item label="Статус">
                 {getStatusTag(selectedOrder.status)}
@@ -234,7 +241,7 @@ const Orders = () => {
             <div style={{ marginTop: 24, marginBottom: 24 }}>
               <Title level={4}>Товары в заказе</Title>
               <Table
-                dataSource={selectedOrder.items}
+                dataSource={selectedOrder.orderItems}
                 rowKey="id"
                 pagination={false}
                 columns={[

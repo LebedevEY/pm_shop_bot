@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User, UserRole } from '../entities/user.entity';
+import { User, UserRole } from '../entities';
 
 export class UserService {
   constructor(
@@ -23,10 +23,6 @@ export class UserService {
     return this.userRepository.findOne({ where: { email } });
   }
 
-  async findByTelegramId(telegramId: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { telegramId } });
-  }
-
   async create(userData: Partial<User>): Promise<User> {
     if (userData.password) {
       userData.password = await bcrypt.hash(userData.password, 10);
@@ -43,20 +39,6 @@ export class UserService {
 
     await this.userRepository.save(userData);
     return this.findById(userData.id);
-  }
-
-  async updateById(id: string, userData: Partial<User>): Promise<User | null> {
-    if (userData.password) {
-      userData.password = await bcrypt.hash(userData.password, 10);
-    }
-
-    await this.userRepository.update(id, userData);
-    return this.findById(id);
-  }
-
-  async delete(id: string): Promise<boolean> {
-    const result = await this.userRepository.delete(id);
-    return result.affected !== null && result.affected !== undefined && result.affected > 0;
   }
 
   async createAdminIfNotExists(): Promise<void> {

@@ -1,5 +1,5 @@
 import * as nodemailer from 'nodemailer';
-import { Order } from '../entities/order.entity';
+import { Order } from '../entities';
 import { config } from '../config';
 
 export class EmailService {

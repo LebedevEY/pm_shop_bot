@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import express from 'express';
 import cors from 'cors';
 import * as path from 'path';
+import * as fs from 'fs';
 import { DataSource } from 'typeorm';
 import { config } from './config';
 import { setupProductRoutes } from './controllers/product.controller';
@@ -9,7 +10,7 @@ import { setupOrderRoutes } from './controllers/order.controller';
 import { setupAuthRoutes } from './controllers/auth.controller';
 import { setupUserRoutes } from './controllers/user.controller';
 import { errorMiddleware } from './middleware/error.middleware';
-import { TelegramBotService } from './telegram/bot';
+import { TelegramBotService } from './telegram/bot.service';
 import { ProductService } from './services/product.service';
 import { OrderService } from './services/order.service';
 import { UserService } from './services/user.service';
@@ -44,7 +45,6 @@ async function bootstrap() {
   app.use(express.static(path.join(__dirname, 'public')));
   // Создаем папку для загрузок, если её нет
   const uploadsDir = path.join(__dirname, 'public', 'uploads', 'products');
-  const fs = require('fs');
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
@@ -71,20 +71,24 @@ async function bootstrap() {
     userRepository,
   );
 
-  const telegramBotService = new TelegramBotService(
-    productService,
-    orderService,
-    {} as NotificationService,
-    cartService,
-  );
-
+  // Сначала создаем NotificationService без TelegramBotService
   const notificationService = new NotificationService(
     notificationRepository,
     emailService,
-    telegramBotService,
+    null as any, // Временно null, будет установлен позже
   );
 
-  (telegramBotService as any).notificationService = notificationService;
+  // Создаем TelegramBotService с правильными аргументами
+  const telegramBotService = new TelegramBotService(
+    productService,
+    orderService,
+    cartService,
+    notificationService,
+    process.env.TELEGRAM_BOT_TOKEN || '',
+  );
+
+  // Устанавливаем ссылку на TelegramBotService в NotificationService
+  (notificationService as any).telegramBotService = telegramBotService;
 
   app.use('/api/auth', setupAuthRoutes(authService, userService));
   app.use('/api/products', setupProductRoutes(productService));

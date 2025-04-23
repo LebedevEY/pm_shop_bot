@@ -5,7 +5,7 @@ interface OrderFilters {
   status?: OrderStatus;
   startDate?: string;
   endDate?: string;
-  contactInfo?: string;
+  shippingAddress?: string;
 }
 
 export const OrderService = {
