@@ -68,10 +68,29 @@ class ProductHandlers {
                 // Отправляем сообщение с фото, если оно есть
                 if (product.imageUrl) {
                     // Преобразуем относительный путь в полный путь к файлу
-                    const fullImagePath = path_1.default.join(__dirname, '../../../src/public', product.imageUrl);
+                    // Путь к изображению может быть вида /uploads/products/filename.png
+                    // Нам нужно добавить путь к директории src/public
+                    let fullImagePath = '';
+                    if (product.imageUrl && product.imageUrl.startsWith('/')) {
+                        // Если путь начинается с /, то это относительный путь от корня public
+                        fullImagePath = path_1.default.join(__dirname, '../../../src/public', product.imageUrl);
+                    }
+                    else if (product.imageUrl) {
+                        // Иначе просто добавляем путь к директории uploads/products
+                        fullImagePath = path_1.default.join(__dirname, '../../../src/public/uploads/products', product.imageUrl);
+                    }
+                    else {
+                        // Если путь не указан, используем путь к тестовому изображению
+                        fullImagePath = path_1.default.join(__dirname, '../../../src/public/uploads/products/product-1745390311258-166903368.png');
+                    }
                     // Проверяем существование файла и логируем путь
                     const fileExists = fs_1.default.existsSync(fullImagePath);
                     console.log(`Путь к изображению товара ${product.name}: ${fullImagePath}, файл ${fileExists ? 'существует' : 'не существует'}`);
+                    // Если файл не существует, попробуем использовать тестовое изображение
+                    if (!fileExists && product.imageUrl) {
+                        fullImagePath = path_1.default.join(__dirname, '../../../src/public/uploads/products/product-1745390311258-166903368.png');
+                        console.log(`Используем тестовое изображение: ${fullImagePath}`);
+                    }
                     try {
                         await this.bot.sendPhoto(chatId, fullImagePath, {
                             caption: message,

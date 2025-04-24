@@ -72,9 +72,19 @@ async function bootstrap() {
     await appDataSource.initialize();
     console.log('База данных подключена');
     const app = (0, express_1.default)();
-    app.use((0, cors_1.default)());
+    const corsOptions = {
+        credentials: true,
+        origin(origin, callback) {
+            if (origin) {
+                callback(null, true);
+            }
+            else {
+                callback(null, true);
+            }
+        },
+    };
+    app.use((0, cors_1.default)(corsOptions));
     app.use(express_1.default.json());
-    app.use(express_1.default.static(path.join(__dirname, 'public')));
     // Создаем папку для загрузок, если её нет
     const uploadsDir = path.join(__dirname, 'public', 'uploads', 'products');
     if (!fs.existsSync(uploadsDir)) {
@@ -105,9 +115,21 @@ async function bootstrap() {
     app.use('/api/orders', (0, order_controller_1.setupOrderRoutes)(orderService, notificationService));
     app.use('/api/users', (0, user_controller_1.setupUserRoutes)(userService));
     app.use(error_middleware_1.errorMiddleware);
+    // Настраиваем статические маршруты
+    // 1. Маршрут для загруженных изображений
+    app.use('/public', express_1.default.static(path.join(__dirname, 'public')));
+    // 2. Хостинг клиентской части
+    app.use(express_1.default.static(path.join(__dirname, '..', 'client', 'dist')));
+    // 3. Для SPA маршрутизации - отправляем index.html для всех запросов, которые не обрабатываются API и не являются файлами
+    app.get('*', (req, res) => {
+        // Исключаем API маршруты и пути к файлам
+        if (!req.path.startsWith('/api') && !req.path.startsWith('/public')) {
+            res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
+        }
+    });
     await userService.createAdminIfNotExists();
-    const PORT = config_1.config.port;
-    app.listen(PORT, () => {
+    const PORT = Number(config_1.config.port);
+    app.listen(PORT, '0.0.0.0', () => {
         console.log(`Сервер запущен на порту ${PORT}`);
     });
 }

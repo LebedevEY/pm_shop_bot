@@ -40,9 +40,19 @@ async function bootstrap() {
 
   const app = express();
 
-  app.use(cors());
+  const corsOptions = {
+    credentials: true,
+    origin(origin: any, callback: (arg0: null, arg1: boolean) => void) {
+      if (origin) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
+  };
+
+  app.use(cors(corsOptions));
   app.use(express.json());
-  app.use(express.static(path.join(__dirname, 'public')));
   // Создаем папку для загрузок, если её нет
   const uploadsDir = path.join(__dirname, 'public', 'uploads', 'products');
   if (!fs.existsSync(uploadsDir)) {
@@ -96,11 +106,26 @@ async function bootstrap() {
   app.use('/api/users', setupUserRoutes(userService));
 
   app.use(errorMiddleware);
+  
+  // Настраиваем статические маршруты
+  // 1. Маршрут для загруженных изображений
+  app.use('/public', express.static(path.join(__dirname, 'public')));
+  
+  // 2. Хостинг клиентской части
+  app.use(express.static(path.join(__dirname, '..', 'client', 'dist')));
+  
+  // 3. Для SPA маршрутизации - отправляем index.html для всех запросов, которые не обрабатываются API и не являются файлами
+  app.get('*', (req, res) => {
+    // Исключаем API маршруты и пути к файлам
+    if (!req.path.startsWith('/api') && !req.path.startsWith('/public')) {
+      res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
+    }
+  });
 
   await userService.createAdminIfNotExists();
 
-  const PORT = config.port;
-  app.listen(PORT, () => {
+  const PORT = Number(config.port);
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Сервер запущен на порту ${PORT}`);
   });
 }

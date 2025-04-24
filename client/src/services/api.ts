@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getToken } from '../utils/auth';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}/api`;
 
 const api = axios.create({
   baseURL: API_URL,

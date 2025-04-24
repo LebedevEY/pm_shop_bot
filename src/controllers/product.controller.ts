@@ -53,7 +53,7 @@ export function setupProductRoutes(productService: ProductService) {
         }
         
         if (req.file) {
-          const relativePath = path.join('/uploads/products', path.basename(req.file.path));
+          const relativePath = path.join('/public/uploads/products', path.basename(req.file.path));
           productData.imageUrl = relativePath;
         }
         
@@ -81,7 +81,7 @@ export function setupProductRoutes(productService: ProductService) {
         }
         
         if (req.file) {
-          const relativePath = path.join('/uploads/products', path.basename(req.file.path));
+          const relativePath = path.join('/public/uploads/products', path.basename(req.file.path));
           productData.imageUrl = relativePath;
         }
         

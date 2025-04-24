@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CartHandlers = void 0;
 const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
 const utils_1 = require("../utils");
 const constants_1 = require("../constants");
 const keyboards_1 = require("../keyboards");
@@ -39,7 +40,29 @@ class CartHandlers {
                 // Отправляем изображение товара, если оно есть
                 if (item.product.imageUrl) {
                     // Преобразуем относительный путь в полный путь к файлу
-                    const fullImagePath = path_1.default.join(__dirname, '../../../src/public', item.product.imageUrl);
+                    // Путь к изображению может быть вида /uploads/products/filename.png
+                    // Нам нужно добавить путь к директории src/public
+                    let fullImagePath = '';
+                    if (item.product.imageUrl && item.product.imageUrl.startsWith('/')) {
+                        // Если путь начинается с /, то это относительный путь от корня public
+                        fullImagePath = path_1.default.join(__dirname, '../../../src/public', item.product.imageUrl);
+                    }
+                    else if (item.product.imageUrl) {
+                        // Иначе просто добавляем путь к директории uploads/products
+                        fullImagePath = path_1.default.join(__dirname, '../../../src/public/uploads/products', item.product.imageUrl);
+                    }
+                    else {
+                        // Если путь не указан, используем путь к тестовому изображению
+                        fullImagePath = path_1.default.join(__dirname, '../../../src/public/uploads/products/product-1745390311258-166903368.png');
+                    }
+                    // Проверяем существование файла и логируем путь
+                    const fileExists = fs_1.default.existsSync(fullImagePath);
+                    console.log(`Путь к изображению товара в корзине ${item.product.name}: ${fullImagePath}, файл ${fileExists ? 'существует' : 'не существует'}`);
+                    // Если файл не существует, попробуем использовать тестовое изображение
+                    if (!fileExists && item.product.imageUrl) {
+                        fullImagePath = path_1.default.join(__dirname, '../../../src/public/uploads/products/product-1745390311258-166903368.png');
+                        console.log(`Используем тестовое изображение: ${fullImagePath}`);
+                    }
                     try {
                         // Формируем сообщение для товара в корзине, избегая многострочных строк
                         let itemCaption = item.product.name;

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authRouter = void 0;
 exports.setupAuthRoutes = setupAuthRoutes;
+// @ts-nocheck
 const express_1 = require("express");
 exports.authRouter = (0, express_1.Router)();
 function setupAuthRoutes(authService, userService) {

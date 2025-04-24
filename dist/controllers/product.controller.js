@@ -75,7 +75,7 @@ function setupProductRoutes(productService) {
                 productData.isActive = productData.isActive === 'true';
             }
             if (req.file) {
-                const relativePath = path.join('/uploads/products', path.basename(req.file.path));
+                const relativePath = path.join('/public/uploads/products', path.basename(req.file.path));
                 productData.imageUrl = relativePath;
             }
             const product = await productService.create(productData);
@@ -94,7 +94,7 @@ function setupProductRoutes(productService) {
                 productData.isActive = productData.isActive === 'true';
             }
             if (req.file) {
-                const relativePath = path.join('/uploads/products', path.basename(req.file.path));
+                const relativePath = path.join('/public/uploads/products', path.basename(req.file.path));
                 productData.imageUrl = relativePath;
             }
             console.log('Отправляем данные в сервис продуктов:', productData);

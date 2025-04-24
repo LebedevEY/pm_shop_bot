@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.orderRouter = void 0;
 exports.setupOrderRoutes = setupOrderRoutes;
+// @ts-nocheck
 const express_1 = require("express");
 const auth_middleware_1 = require("../middleware/auth.middleware");
 const roles_middleware_1 = require("../middleware/roles.middleware");
