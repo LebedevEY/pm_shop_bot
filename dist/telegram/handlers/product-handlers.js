@@ -62,7 +62,7 @@ class ProductHandlers {
                     // Преобразуем относительный путь в полный путь к файлу
                     // Путь к изображению может быть вида /uploads/products/filename.png
                     // Нам нужно добавить путь к директории src/public
-                    const fullImagePath = path_1.default.join(__dirname, '..', product.imageUrl);
+                    const fullImagePath = path_1.default.join(__dirname, '..', '..', product.imageUrl);
                     console.log(fullImagePath);
                     // Проверяем существование файла и логируем путь
                     const fileExists = fs_1.default.existsSync(fullImagePath);
