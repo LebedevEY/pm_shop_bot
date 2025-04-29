@@ -110,13 +110,13 @@ async function bootstrap() {
   app.use('/public', express.static(path.join(__dirname, 'public')));
 
   // 2. Хостинг клиентской части
-  app.use(express.static(path.join(__dirname, '..', 'admin')));
+  app.use(express.static(path.join(__dirname, '..', 'src', 'admin')));
 
   // 3. Для SPA маршрутизации - отправляем index.html для всех запросов, которые не обрабатываются API и не являются файлами
   app.get('*', (req, res) => {
     // Исключаем API маршруты и пути к файлам
     if (!req.path.startsWith('/api') && !req.path.startsWith('/public')) {
-      res.sendFile(path.join(__dirname, '..', 'admin'));
+      res.sendFile(path.join(__dirname, '..', 'src', 'admin'));
     }
   });
 
