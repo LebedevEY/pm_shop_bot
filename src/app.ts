@@ -19,7 +19,7 @@ import { NotificationService } from './services/notification.service';
 import { EmailService } from './services/email.service';
 import { CartService } from './services/cart.service';
 import {
-  User, Product, Order, OrderItem, Notification, Cart, CartItem,
+  Cart, CartItem, Notification, Order, OrderItem, Product, User,
 } from './entities';
 
 async function bootstrap() {
@@ -89,7 +89,8 @@ async function bootstrap() {
   );
 
   // Создаем TelegramBotService с правильными аргументами
-  const telegramBotService = new TelegramBotService(
+  // Устанавливаем ссылку на TelegramBotService в NotificationService
+  (notificationService as any).telegramBotService = new TelegramBotService(
     productService,
     orderService,
     cartService,
@@ -97,23 +98,20 @@ async function bootstrap() {
     process.env.TELEGRAM_BOT_TOKEN || '',
   );
 
-  // Устанавливаем ссылку на TelegramBotService в NotificationService
-  (notificationService as any).telegramBotService = telegramBotService;
-
   app.use('/api/auth', setupAuthRoutes(authService, userService));
   app.use('/api/products', setupProductRoutes(productService));
   app.use('/api/orders', setupOrderRoutes(orderService, notificationService));
   app.use('/api/users', setupUserRoutes(userService));
 
   app.use(errorMiddleware);
-  
+
   // Настраиваем статические маршруты
   // 1. Маршрут для загруженных изображений
   app.use('/public', express.static(path.join(__dirname, 'public')));
-  
+
   // 2. Хостинг клиентской части
   app.use(express.static(path.join(__dirname, '..', 'client', 'dist')));
-  
+
   // 3. Для SPA маршрутизации - отправляем index.html для всех запросов, которые не обрабатываются API и не являются файлами
   app.get('*', (req, res) => {
     // Исключаем API маршруты и пути к файлам
