@@ -107,9 +107,8 @@ async function bootstrap() {
     // Сначала создаем NotificationService без TelegramBotService
     const notificationService = new notification_service_1.NotificationService(notificationRepository, emailService, null);
     // Создаем TelegramBotService с правильными аргументами
-    const telegramBotService = new bot_service_1.TelegramBotService(productService, orderService, cartService, notificationService, process.env.TELEGRAM_BOT_TOKEN || '');
     // Устанавливаем ссылку на TelegramBotService в NotificationService
-    notificationService.telegramBotService = telegramBotService;
+    notificationService.telegramBotService = new bot_service_1.TelegramBotService(productService, orderService, cartService, notificationService, process.env.TELEGRAM_BOT_TOKEN || '');
     app.use('/api/auth', (0, auth_controller_1.setupAuthRoutes)(authService, userService));
     app.use('/api/products', (0, product_controller_1.setupProductRoutes)(productService));
     app.use('/api/orders', (0, order_controller_1.setupOrderRoutes)(orderService, notificationService));
@@ -118,13 +117,14 @@ async function bootstrap() {
     // Настраиваем статические маршруты
     // 1. Маршрут для загруженных изображений
     app.use('/public', express_1.default.static(path.join(__dirname, 'public')));
+    console.log(path.join(__dirname, 'public'));
     // 2. Хостинг клиентской части
-    app.use(express_1.default.static(path.join(__dirname, '..', 'client', 'dist')));
+    app.use(express_1.default.static(path.join(__dirname, '..', 'src', 'admin')));
     // 3. Для SPA маршрутизации - отправляем index.html для всех запросов, которые не обрабатываются API и не являются файлами
-    app.get('*', (req, res) => {
+    app.use('*', (req, res) => {
         // Исключаем API маршруты и пути к файлам
         if (!req.path.startsWith('/api') && !req.path.startsWith('/public')) {
-            res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
+            res.sendFile(path.join(__dirname, '..', 'src', 'admin/index.html'));
         }
     });
     await userService.createAdminIfNotExists();

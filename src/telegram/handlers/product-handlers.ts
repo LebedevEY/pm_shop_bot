@@ -70,28 +70,12 @@ export class ProductHandlers {
           // Преобразуем относительный путь в полный путь к файлу
           // Путь к изображению может быть вида /uploads/products/filename.png
           // Нам нужно добавить путь к директории src/public
-          let fullImagePath = '';
-
-          if (product.imageUrl && product.imageUrl.startsWith('/')) {
-            // Если путь начинается с /, то это относительный путь от корня public
-            fullImagePath = path.join(__dirname, '../../../src/public', product.imageUrl);
-          } else if (product.imageUrl) {
-            // Иначе просто добавляем путь к директории uploads/products
-            fullImagePath = path.join(__dirname, '../../../src/public/uploads/products', product.imageUrl);
-          } else {
-            // Если путь не указан, используем путь к тестовому изображению
-            fullImagePath = path.join(__dirname, '../../../src/public/uploads/products/product-1745390311258-166903368.png');
-          }
+          const fullImagePath = path.join(__dirname, '..', product.imageUrl);
+          console.log(fullImagePath);
 
           // Проверяем существование файла и логируем путь
           const fileExists = fs.existsSync(fullImagePath);
           console.log(`Путь к изображению товара ${product.name}: ${fullImagePath}, файл ${fileExists ? 'существует' : 'не существует'}`);
-
-          // Если файл не существует, попробуем использовать тестовое изображение
-          if (!fileExists && product.imageUrl) {
-            fullImagePath = path.join(__dirname, '../../../src/public/uploads/products/product-1745390311258-166903368.png');
-            console.log(`Используем тестовое изображение: ${fullImagePath}`);
-          }
 
           try {
             await this.bot.sendPhoto(chatId, fullImagePath, {

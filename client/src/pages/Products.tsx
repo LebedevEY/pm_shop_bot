@@ -175,7 +175,7 @@ const Products = () => {
         return (
             imageUrl ? (
                 <Image
-                    src={`${rootUrl}/public${imageUrl}`}
+                    src={`${rootUrl}${imageUrl}`}
                     alt="Изображение товара"
                     width={80}
                     height={80}
